@@ -1,11 +1,20 @@
 import os
 import time
+from datetime import datetime
 
 from . import cli
+from .color import Color
 from .process import get_proc_output
 
 TESTS_DIR = "tests"
 COMMAND_FILE = "test_cmd.txt"
+
+
+class COLORS:
+    GENERAL = Color("#fff")
+    TEST_PASSED = Color("#0f0")
+    TEST_FAILED = Color("#f00")
+    ERROR = Color("#f00")
 
 
 class TestCase:
@@ -53,15 +62,64 @@ def main() -> None:
     cli.init_color()
     cli.clear_console()
 
-    test_cases = get_test_cases(TESTS_DIR, COMMAND_FILE)
+    while True:
+        test_cases = get_test_cases(TESTS_DIR, COMMAND_FILE)
 
-    if not test_cases:
-        cli.clear_console()
-        print("NO TESTS FOUND")
-        time.sleep(1)
+        if not test_cases:
+            cli.clear_console()
+            print("NO TESTS FOUND")
+            time.sleep(1)
+            continue
 
-    for test_case in test_cases:
-        print(test_case)
+        tests_passed = [False] * len(test_cases)
+
+        for test_case_num, test_case in enumerate(test_cases):
+            output_data, error_data = test_case.run_test()
+            output_data = output_data
+            error_data = error_data
+
+            test_passed = (
+                not error_data and output_data == test_case.expected_output_data
+            )
+            tests_passed[test_case_num] = test_passed
+
+            cli.clear_console()
+            print(
+                cli.color_text(
+                    f"TIME: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                    COLORS.GENERAL,
+                )
+            )
+            print("")
+
+            if test_passed:
+                print(
+                    cli.color_text(
+                        f"TEST #{test_case_num+1} PASSED", COLORS.TEST_PASSED
+                    )
+                )
+            else:
+                print(
+                    cli.color_text(
+                        f"TEST #{test_case_num+1} FAILED", COLORS.TEST_FAILED
+                    )
+                )
+            print("")
+
+            cli.print_line()
+            print(test_case.input_data)
+            cli.print_line()
+            print(output_data)
+            cli.print_line()
+
+            if error_data:
+                print("ERROR:")
+                print(cli.color_text(error_data, COLORS.ERROR))
+                print("")
+
+            time.sleep(0.5)
+            if not test_passed:
+                time.sleep(1)
 
 
 if __name__ == "__main__":
