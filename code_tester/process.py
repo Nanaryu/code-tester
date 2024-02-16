@@ -11,5 +11,9 @@ def get_proc_output(test_command: str, in_data: bytes, timeout: float = 5):
             proc.terminate()
     except PermissionError:
         out_data, err = b"", b"CANNOT RUN PROCESS"
+    except FileNotFoundError:
+        out_data, err = b"", b"EXECUTABLE FILE NOT FOUND"
+    except OSError:
+        out_data, err = b"", b"INVALID COMMAND"
 
     return out_data, err
