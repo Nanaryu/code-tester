@@ -38,10 +38,10 @@ def get_test_cases(tests_dir: str, command_file: str) -> list[TestCase]:
         test_count += 1
 
         with open(test_in_file, "r") as f:
-            input_data = f.read().rstrip()
+            input_data = f.read().replace("\r\n", "\n").rstrip()
 
         with open(test_out_file, "r") as f:
-            expected_output_data = f.read().rstrip()
+            expected_output_data = f.read().replace("\r\n", "\n").rstrip()
 
         test_cases.append(TestCase(test_command, input_data, expected_output_data))
 
