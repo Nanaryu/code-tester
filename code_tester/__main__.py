@@ -1,6 +1,5 @@
 import os
 import time
-from dataclasses import dataclass
 
 from . import cli
 from .process import get_proc_output
@@ -9,17 +8,19 @@ TESTS_DIR = "tests"
 COMMAND_FILE = "test_cmd.txt"
 
 
-@dataclass(frozen=True, slots=True)
 class TestCase:
-    command: str
-    input_data: str
-    expected_output_data: str
+    def __init__(
+        self, command: str, input_data: str, expected_output_data: str
+    ) -> None:
+        self.command = command.strip()
+        self.input_data = input_data.replace("\r\n", "\n").rstrip()
+        self.expected_output_data = expected_output_data.replace("\r\n", "\n").rstrip()
 
     def run_test(self) -> tuple[str, str]:
         input_data = self.input_data.encode()
         output_data, error_data = get_proc_output(self.command, input_data)
-        output_data = output_data.decode()
-        error_data = error_data.decode()
+        output_data = output_data.decode().replace("\r\n", "\n").rstrip()
+        error_data = error_data.decode().replace("\r\n", "\n").rstrip()
         return output_data, error_data
 
 
@@ -27,7 +28,7 @@ def get_test_cases(tests_dir: str, command_file: str) -> list[TestCase]:
     test_cases: list[TestCase] = []
 
     with open(command_file, "r") as f:
-        test_command = f.readline().strip()
+        test_command = f.readline()
 
     test_count = 0
     while True:
@@ -38,10 +39,10 @@ def get_test_cases(tests_dir: str, command_file: str) -> list[TestCase]:
         test_count += 1
 
         with open(test_in_file, "r") as f:
-            input_data = f.read().replace("\r\n", "\n").rstrip()
+            input_data = f.read()
 
         with open(test_out_file, "r") as f:
-            expected_output_data = f.read().replace("\r\n", "\n").rstrip()
+            expected_output_data = f.read()
 
         test_cases.append(TestCase(test_command, input_data, expected_output_data))
 
