@@ -5,6 +5,7 @@ from datetime import datetime
 from . import cli
 from .color import Color
 from .process import get_proc_output
+from .ui import msgbox
 
 TESTS_DIR = "tests"
 COMMAND_FILE = "test_cmd.txt"
@@ -62,6 +63,7 @@ def main() -> None:
     cli.init_color()
     cli.clear_console()
 
+    success_prev = False
     while True:
         test_cases = get_test_cases(TESTS_DIR, COMMAND_FILE)
 
@@ -120,6 +122,13 @@ def main() -> None:
             time.sleep(0.5)
             if not test_passed:
                 time.sleep(1)
+
+        if all(tests_passed):
+            if not success_prev:
+                msgbox("TESTS PASSED", "ALL TESTS PASSED")
+            success_prev = True
+        else:
+            success_prev = False
 
 
 if __name__ == "__main__":
