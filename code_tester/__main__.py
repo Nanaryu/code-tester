@@ -117,12 +117,16 @@ def main() -> None:
                     )
                 )
             print("")
-
             cli.print_line()
+
             print(test_case.input_data)
             cli.print_line()
+
             for diff in output_diffs:
-                print(cli.color_text(diff.data, *DIFF_COLORS[diff.diff_type]), end="")
+                diff_data = diff.data
+                if diff.diff_type != DiffType.KEEP:
+                    diff_data = diff_data.replace("\n", " ¶\n")
+                print(cli.color_text(diff_data, *DIFF_COLORS[diff.diff_type]), end="")
             print("")
             cli.print_line()
 
