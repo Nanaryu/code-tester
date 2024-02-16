@@ -4,6 +4,7 @@ from datetime import datetime
 
 from . import cli
 from .color import Color
+from .diff import DiffType, get_diff
 from .process import get_proc_output
 from .ui import msgbox
 
@@ -16,6 +17,13 @@ class COLORS:
     TEST_PASSED = Color("#0f0")
     TEST_FAILED = Color("#f00")
     ERROR = Color("#f00")
+
+
+DIFF_COLORS: dict[DiffType, tuple[Color, Color | None]] = {
+    DiffType.KEEP: (Color("#4c4"), None),
+    DiffType.INSERT: (Color("#0ff"), Color("#066")),
+    DiffType.REMOVE: (Color("#f44"), Color("#600")),
+}
 
 
 class TestCase:
@@ -80,6 +88,8 @@ def main() -> None:
             output_data = output_data
             error_data = error_data
 
+            output_diffs = get_diff(output_data, test_case.expected_output_data)
+
             test_passed = (
                 not error_data and output_data == test_case.expected_output_data
             )
@@ -111,7 +121,9 @@ def main() -> None:
             cli.print_line()
             print(test_case.input_data)
             cli.print_line()
-            print(output_data)
+            for diff in output_diffs:
+                print(cli.color_text(diff.data, *DIFF_COLORS[diff.diff_type]), end="")
+            print("")
             cli.print_line()
 
             if error_data:
