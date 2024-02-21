@@ -27,4 +27,8 @@ def print_line():
 
 
 def clear_console():
-    os.system("cls")
+    match os.name:
+        case "nt":
+            os.system("cls")
+        case "posix":
+            os.system("clear")
