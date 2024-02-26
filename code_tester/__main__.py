@@ -37,8 +37,8 @@ class TestCase:
     def run_test(self) -> tuple[str, str]:
         input_data = self.input_data.encode()
         output_data, error_data = get_proc_output(self.command, input_data)
-        output_data = output_data.decode().replace("\r\n", "\n").rstrip()
-        error_data = error_data.decode().replace("\r\n", "\n").rstrip()
+        output_data = output_data.decode(errors="ignore").replace("\r\n", "\n").rstrip()
+        error_data = error_data.decode(errors="ignore").replace("\r\n", "\n").rstrip()
         return output_data, error_data
 
 
