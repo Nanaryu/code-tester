@@ -9,7 +9,7 @@ from .process import get_proc_output
 from .ui import msgbox
 
 TESTS_DIR = "tests"
-COMMAND_FILE = "test_cmd.txt"
+COMMAND = "py script/main.py"
 
 
 class COLORS:
@@ -42,16 +42,15 @@ class TestCase:
         return output_data, error_data
 
 
-def get_test_cases(tests_dir: str, command_file: str) -> list[TestCase]:
+def get_test_cases(tests_dir: str) -> list[TestCase]:
     test_cases: list[TestCase] = []
 
-    with open(command_file, "r") as f:
-        test_command = f.readline()
+    test_command = COMMAND # removed test_cmd.txt
 
     test_count = 0
     while True:
         test_in_file = os.path.join(tests_dir, f"{test_count+1}.in")
-        test_out_file = os.path.join(tests_dir, f"{test_count+1}.out")
+        test_out_file = os.path.join(tests_dir, f"{test_count+1}.ans")
         if not os.path.isfile(test_in_file) or not os.path.isfile(test_out_file):
             break
         test_count += 1
@@ -73,7 +72,7 @@ def main() -> None:
 
     success_prev = False
     while True:
-        test_cases = get_test_cases(TESTS_DIR, COMMAND_FILE)
+        test_cases = get_test_cases(TESTS_DIR)
 
         if not test_cases:
             cli.clear_console()
@@ -141,7 +140,14 @@ def main() -> None:
 
         if all(tests_passed):
             if not success_prev:
-                msgbox("TESTS PASSED", "ALL TESTS PASSED")
+                msgbox("", "ALL TESTS PASSED")
+                
+                # copy main.py to a new file to save time when submitting
+                current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                new_file_name = f"PASSED_{current_time}.py"
+                with open("script/main.py", "r") as src_file:
+                    with open(new_file_name, "w") as dst_file:
+                        dst_file.write(src_file.read())
             success_prev = True
         else:
             success_prev = False
