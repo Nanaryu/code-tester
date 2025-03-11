@@ -143,12 +143,15 @@ def main() -> None:
                 msgbox("", "ALL TESTS PASSED")
 
                 # copy main.py to a new file to save time when submitting
-                current_time = datetime.now().strftime('%H:%M:%S_%d-%m-%Y')
+                current_time = datetime.now().strftime('%H-%M-%S_%d-%m-%Y')
                 new_file_name = f"PASSED_{current_time}.py"
-                with open("script/main.py", "r") as src_file:
-                    new_file_path = os.path.join("answers", new_file_name)
-                    with open(new_file_path, "w") as dst_file:
-                        dst_file.write(src_file.read())
+                try:
+                    with open("script/main.py", "r") as src_file:
+                        with open(os.path.join("answers/", new_file_name), "w") as dst_file:
+                            dst_file.write(src_file.read())
+                except Exception as e:
+                    print(f"ERROR: {e}")
+                    os.system("pause")
             success_prev = True
         else:
             success_prev = False
